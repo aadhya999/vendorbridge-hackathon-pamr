@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase Orders - Vendara{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Vendara</h2>
+            <p>{{ session.user_name }} ({{ session.user_role }})</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('vendors') }}">Vendors</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('requisitions') }}">Requisitions</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('rfqs') }}">RFQs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('quotations') }}">Quotations</a>
+                </li>
+                <li class="active">
+                    <a href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('grns') }}">GRNs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('invoices') }}">Invoices</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('scorecards') }}">Scorecards</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('analytics') }}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Purchase Orders</h1>
+        </div>
+        
+        <!-- Purchase Orders Table -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>PO #</th>
+                        <th>Vendor</th>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Total (₹)</th>
+                        <th>GST (₹)</th>
+                        <th>Grand Total (₹)</th>
+                        <th>Delivery Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if pos %}
+                        {% for po in pos %}
+                        <tr>
+                            <td>{{ po.po_number }}</td>
+                            <td>{{ po.vendor.company_name }}</td>
+                            <td>{{ po.item_name }}</td>
+                            <td>{{ po.quantity }} {{ po.unit }}</td>
+                            <td>₹{{ "%.2f"|format(po.total_amount) }}</td>
+                            <td>₹{{ "%.2f"|format(po.gst_amount) }}</td>
+                            <td>₹{{ "%.2f"|format(po.grand_total) }}</td>
+                            <td>{{ po.delivery_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <span class="status status-{{ po.status }}">{{ po.status }}</span>
+                            </td>
+                            <td>
+                                <button onclick="alert('Download PDF: {{ po.po_number }}')" class="btn btn-sm btn-secondary">PDF</button>
+                                <button onclick="alert('Send to Vendor: {{ po.po_number }}')" class="btn btn-sm btn-primary">Send</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="10" class="no-data">No purchase orders found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}

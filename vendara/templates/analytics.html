@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - Vendara{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Vendara</h2>
+            <p>{{ session.user_name }} ({{ session.user_role }})</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('vendors') }}">Vendors</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('requisitions') }}">Requisitions</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('rfqs') }}">RFQs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('quotations') }}">Quotations</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('grns') }}">GRNs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('invoices') }}">Invoices</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('scorecards') }}">Scorecards</a>
+                </li>
+                <li class="active">
+                    <a href="{{ url_for('analytics') }}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Analytics Dashboard</h1>
+        </div>
+        
+        <!-- Analytics Cards -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-icon">📊</div>
+                <div class="card-content">
+                    <h3>{{ monthly_spend|length }}</h3>
+                    <p>Months Tracked</p>
+                </div>
+            </div>
+            
+            <div class="card card-success">
+                <div class="card-icon">🏢</div>
+                <div class="card-content">
+                    <h3>{{ vendor_spend|length }}</h3>
+                    <p>Active Vendors</p>
+                </div>
+            </div>
+            
+            <div class="card card-warning">
+                <div class="card-icon">📦</div>
+                <div class="card-content">
+                    <h3>{{ category_spend|length }}</h3>
+                    <p>Categories</p>
+                </div>
+            </div>
+            
+            <div class="card card-danger">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <h3>₹{{ "%.0f"|format(monthly_spend|sum(attribute='total')) if monthly_spend else 0 }}</h3>
+                    <p>Total Spend</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monthly Spend Chart -->
+        <div class="recent-activities">
+            <h2>Monthly Spend Trend</h2>
+            {% if monthly_spend %}
+                <div style="display: flex; align-items: flex-end; gap: 20px; height: 200px; padding: 20px; background: #F8F9FA; border-radius: 8px;">
+                    {% for month in monthly_spend %}
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                        <div style="width: 40px; background: #714B67; border-radius: 4px 4px 0 0; height: {{ (month.total / (monthly_spend|sum(attribute='total')) * 150) if monthly_spend|sum(attribute='total') > 0 else 0 }}px;"></div>
+                        <span style="font-size: 12px; margin-top: 10px; color: #666;">{{ month.month }}</span>
+                        <span style="font-size: 11px; color: #888;">₹{{ "%.0f"|format(month.total) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data">No monthly spend data available</p>
+            {% endif %}
+        </div>
+        
+        <!-- Top Vendors -->
+        <div class="recent-activities" style="margin-top: 20px;">
+            <h2>Top 5 Vendors by Spend</h2>
+            {% if vendor_spend %}
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    {% for vendor in vendor_spend %}
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #F8F9FA; border-radius: 8px; border-left: 4px solid #714B67;">
+                        <div style="flex: 1;">
+                            <strong style="color: #333;">{{ vendor[0] }}</strong>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 700; color: #714B67;">₹{{ "%.2f"|format(vendor[1]) }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data">No vendor spend data available</p>
+            {% endif %}
+        </div>
+        
+        <!-- Category-wise Spend -->
+        <div class="recent-activities" style="margin-top: 20px;">
+            <h2>Category-wise Spend</h2>
+            {% if category_spend %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    {% for category in category_spend %}
+                    <div style="padding: 20px; background: #F8F9FA; border-radius: 8px; text-align: center; border-left: 4px solid #00A09D;">
+                        <h3 style="color: #666; font-size: 14px; margin-bottom: 10px;">{{ category[0] }}</h3>
+                        <p style="font-size: 24px; font-weight: 700; color: #00A09D;">₹{{ "%.2f"|format(category[1]) }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data">No category spend data available</p>
+            {% endif %}
+        </div>
+        
+        <!-- Savings vs Budget -->
+        <div class="recent-activities" style="margin-top: 20px;">
+            <h2>Savings vs Budget</h2>
+            <div style="display: flex; gap: 30px; align-items: center; justify-content: center; padding: 30px; background: #F8F9FA; border-radius: 8px;">
+                <div style="text-align: center;">
+                    <div style="width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(#00A09D 0% 65%, #E0E0E0 65% 100%); margin: 0 auto 15px;"></div>
+                    <p style="color: #666; margin-bottom: 5px;">Budget Utilization</p>
+                    <p style="font-size: 28px; font-weight: 700; color: #714B67;">65%</p>
+                </div>
+                <div style="text-align: center;">
+                    <p style="color: #666; margin-bottom: 5px;">Total Budget</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #666;">₹10,00,000</p>
+                    <p style="color: #666; margin-top: 15px; margin-bottom: 5px;">Spent</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #00A09D;">₹6,50,000</p>
+                    <p style="color: #666; margin-top: 15px; margin-bottom: 5px;">Savings</p>
+                    <p style="font-size: 24px; font-weight: 700; color: #714B67;">₹3,50,000</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

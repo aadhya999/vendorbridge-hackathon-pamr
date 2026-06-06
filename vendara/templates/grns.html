@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}GRNs - Vendara{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Vendara</h2>
+            <p>{{ session.user_name }} ({{ session.user_role }})</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('vendors') }}">Vendors</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('requisitions') }}">Requisitions</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('rfqs') }}">RFQs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('quotations') }}">Quotations</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                </li>
+                <li class="active">
+                    <a href="{{ url_for('grns') }}">GRNs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('invoices') }}">Invoices</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('scorecards') }}">Scorecards</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('analytics') }}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Goods Receipt Notes</h1>
+        </div>
+        
+        <!-- Create GRN Form Modal -->
+        {% if action == 'create' %}
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Create GRN</h2>
+                    <a href="{{ url_for('grns') }}" class="close">&times;</a>
+                </div>
+                <form method="POST" action="{{ url_for('create_grn', po_id=po.id) }}" class="form">
+                    <div class="form-group">
+                        <label>PO Details</label>
+                        <p><strong>PO #:</strong> {{ po.po_number }}</p>
+                        <p><strong>Item:</strong> {{ po.item_name }}</p>
+                        <p><strong>Ordered Quantity:</strong> {{ po.quantity }} {{ po.unit }}</p>
+                        <p><strong>Vendor:</strong> {{ po.vendor.company_name }}</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="received_quantity">Received Quantity</label>
+                        <input type="number" id="received_quantity" name="received_quantity" required placeholder="Enter received quantity">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="condition_check">Condition Check</label>
+                        <textarea id="condition_check" name="condition_check" rows="2" placeholder="Enter condition details"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remarks">Remarks</label>
+                        <textarea id="remarks" name="remarks" rows="2" placeholder="Enter any remarks"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Create GRN</button>
+                    <a href="{{ url_for('grns') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- GRNs Table -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>GRN #</th>
+                        <th>PO #</th>
+                        <th>Vendor</th>
+                        <th>Ordered Qty</th>
+                        <th>Received Qty</th>
+                        <th>Condition</th>
+                        <th>Status</th>
+                        <th>Received At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if grns %}
+                        {% for grn in grns %}
+                        <tr>
+                            <td>{{ grn.grn_number }}</td>
+                            <td>{{ grn.po.po_number }}</td>
+                            <td>{{ grn.po.vendor.company_name }}</td>
+                            <td>{{ grn.ordered_quantity }}</td>
+                            <td>{{ grn.received_quantity }}</td>
+                            <td>{{ grn.condition_check if grn.condition_check else '-' }}</td>
+                            <td>
+                                <span class="status status-{{ grn.status }}">{{ grn.status }}</span>
+                            </td>
+                            <td>{{ grn.received_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if grn.po.status == 'acknowledged' and grn.status == 'pending' %}
+                                <a href="{{ url_for('create_grn', po_id=grn.po_id) }}" class="btn btn-sm btn-primary">Create GRN</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="no-data">No GRNs found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+{% endblock %}

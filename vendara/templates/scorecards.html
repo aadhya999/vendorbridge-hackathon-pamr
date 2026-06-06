@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Vendor Scorecards - Vendara{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Vendara</h2>
+            <p>{{ session.user_name }} ({{ session.user_role }})</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('vendors') }}">Vendors</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('requisitions') }}">Requisitions</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('rfqs') }}">RFQs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('quotations') }}">Quotations</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('grns') }}">GRNs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('invoices') }}">Invoices</a>
+                </li>
+                <li class="active">
+                    <a href="{{ url_for('scorecards') }}">Scorecards</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('analytics') }}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Vendor Scorecards</h1>
+        </div>
+        
+        <!-- Create Scorecard Form Modal -->
+        {% if action == 'create' %}
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Create Vendor Scorecard</h2>
+                    <a href="{{ url_for('scorecards') }}" class="close">&times;</a>
+                </div>
+                <form method="POST" action="{{ url_for('create_scorecard', po_id=po.id) }}" class="form">
+                    <div class="form-group">
+                        <label>PO Details</label>
+                        <p><strong>PO #:</strong> {{ po.po_number }}</p>
+                        <p><strong>Vendor:</strong> {{ po.vendor.company_name }}</p>
+                        <p><strong>Item:</strong> {{ po.item_name }}</p>
+                        <p><strong>Total:</strong> ₹{{ "%.2f"|format(po.grand_total) }}</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="delivery_score">Delivery Score (1-5)</label>
+                        <select id="delivery_score" name="delivery_score" required>
+                            <option value="">-- Select Score --</option>
+                            <option value="1">1 - Poor</option>
+                            <option value="2">2 - Below Average</option>
+                            <option value="3">3 - Average</option>
+                            <option value="4">4 - Good</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quality_score">Quality Score (1-5)</label>
+                        <select id="quality_score" name="quality_score" required>
+                            <option value="">-- Select Score --</option>
+                            <option value="1">1 - Poor</option>
+                            <option value="2">2 - Below Average</option>
+                            <option value="3">3 - Average</option>
+                            <option value="4">4 - Good</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price_score">Price Score (1-5)</label>
+                        <select id="price_score" name="price_score" required>
+                            <option value="">-- Select Score --</option>
+                            <option value="1">1 - Poor</option>
+                            <option value="2">2 - Below Average</option>
+                            <option value="3">3 - Average</option>
+                            <option value="4">4 - Good</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remarks">Remarks</label>
+                        <textarea id="remarks" name="remarks" rows="2" placeholder="Enter any remarks"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Create Scorecard</button>
+                    <a href="{{ url_for('scorecards') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Scorecards Table -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Vendor</th>
+                        <th>PO #</th>
+                        <th>Delivery Score</th>
+                        <th>Quality Score</th>
+                        <th>Price Score</th>
+                        <th>Overall Score</th>
+                        <th>Rated At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if scorecards %}
+                        {% for scorecard in scorecards %}
+                        <tr>
+                            <td>{{ scorecard.vendor.company_name }}</td>
+                            <td>{{ scorecard.po.po_number }}</td>
+                            <td>{{ scorecard.delivery_score }}/5</td>
+                            <td>{{ scorecard.quality_score }}/5</td>
+                            <td>{{ scorecard.price_score }}/5</td>
+                            <td>
+                                <strong>{{ "%.1f"|format(scorecard.overall_score) }}/5</strong>
+                            </td>
+                            <td>{{ scorecard.rated_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <button onclick="alert('View Vendor Profile: {{ scorecard.vendor.company_name }}')" class="btn btn-sm btn-secondary">View Profile</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="no-data">No scorecards found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Score Legend -->
+        <div class="recent-activities" style="margin-top: 20px;">
+            <h2>Score Legend</h2>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">4-5</span>
+                    <span style="color: #666;">- Excellent</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: #FFF3CD; color: #856404; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">3</span>
+                    <span style="color: #666;">- Average</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">1-2</span>
+                    <span style="color: #666;">- Poor</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

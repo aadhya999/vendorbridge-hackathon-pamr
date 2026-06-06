@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Vendara{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <h1>Vendara</h1>
+            <p>Full Stack Procurement ERP</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('signup') }}" class="auth-form">
+            <h2>Sign Up</h2>
+            
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required placeholder="Enter your full name">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+            
+            <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" name="role" required>
+                    <option value="requester">Requester</option>
+                    <option value="purchase_manager">Purchase Manager</option>
+                    <option value="finance">Finance</option>
+                    <option value="vendor">Vendor</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="company_name">Company Name (for vendors)</label>
+                <input type="text" id="company_name" name="company_name" placeholder="Enter company name">
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

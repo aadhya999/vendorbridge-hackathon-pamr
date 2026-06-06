@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Vendara{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Vendara</h2>
+            <p>{{ session.user_name }} ({{ role_display }})</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active">
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                </li>
+                {% if session.user_role in ['admin', 'purchase_manager'] %}
+                <li>
+                    <a href="{{ url_for('vendors') }}">Vendors</a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{{ url_for('requisitions') }}">Requisitions</a>
+                </li>
+                {% if session.user_role in ['admin', 'purchase_manager'] %}
+                <li>
+                    <a href="{{ url_for('rfqs') }}">RFQs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('quotations') }}">Quotations</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('grns') }}">GRNs</a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{{ url_for('invoices') }}">Invoices</a>
+                </li>
+                {% if session.user_role in ['admin', 'purchase_manager'] %}
+                <li>
+                    <a href="{{ url_for('scorecards') }}">Scorecards</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('analytics') }}">Analytics</a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Dashboard</h1>
+            <p>Welcome back, {{ session.user_name }}!</p>
+        </div>
+        
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-icon">🏢</div>
+                <div class="card-content">
+                    <h3>{{ total_vendors }}</h3>
+                    <p>Total Vendors</p>
+                </div>
+            </div>
+            
+            <div class="card card-success">
+                <div class="card-icon">📋</div>
+                <div class="card-content">
+                    <h3>{{ total_requisitions }}</h3>
+                    <p>Requisitions</p>
+                </div>
+            </div>
+            
+            <div class="card card-warning">
+                <div class="card-icon">💰</div>
+                <div class="card-content">
+                    <h3>{{ total_rfqs }}</h3>
+                    <p>RFQs</p>
+                </div>
+            </div>
+            
+            <div class="card card-danger">
+                <div class="card-icon">📄</div>
+                <div class="card-content">
+                    <h3>{{ total_quotations }}</h3>
+                    <p>Quotations</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-icon">📦</div>
+                <div class="card-content">
+                    <h3>{{ total_pos }}</h3>
+                    <p>Purchase Orders</p>
+                </div>
+            </div>
+            
+            <div class="card card-success">
+                <div class="card-icon">🧾</div>
+                <div class="card-content">
+                    <h3>{{ total_invoices }}</h3>
+                    <p>Invoices</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SmartSource AI Advisor -->
+        <div class="ai-advisor">
+            <h2>SmartSource AI Advisor</h2>
+            <div class="ai-insights">
+                {% for insight in ai_insights %}
+                <div class="ai-insight-card {{ insight.type }}">
+                    <h4>{{ insight.title }}</h4>
+                    <p>{{ insight.message }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Pending Approvals -->
+        <div class="dashboard-cards">
+            <div class="card card-warning">
+                <div class="card-icon">⏳</div>
+                <div class="card-content">
+                    <h3>{{ pending_requisitions }}</h3>
+                    <p>Pending Requisitions</p>
+                </div>
+            </div>
+            
+            <div class="card card-warning">
+                <div class="card-icon">⏳</div>
+                <div class="card-content">
+                    <h3>{{ pending_rfqs }}</h3>
+                    <p>Pending RFQs</p>
+                </div>
+            </div>
+            
+            <div class="card card-warning">
+                <div class="card-icon">⏳</div>
+                <div class="card-content">
+                    <h3>{{ pending_quotations }}</h3>
+                    <p>Pending Quotations</p>
+                </div>
+            </div>
+            
+            <div class="card card-warning">
+                <div class="card-icon">⏳</div>
+                <div class="card-content">
+                    <h3>{{ pending_invoices }}</h3>
+                    <p>Pending Invoices</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activities -->
+        <div class="recent-activities">
+            <h2>Recent Activities</h2>
+            {% if recent_activities %}
+                <div class="activity-list">
+                    {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-type">{{ activity.type }}</div>
+                        <div class="activity-name">{{ activity.name }}</div>
+                        <div class="activity-status status-{{ activity.status }}">{{ activity.status }}</div>
+                        <div class="activity-date">{{ activity.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data">No recent activities</p>
+            {% endif %}
+        </div>
+    </main>
+</div>
+{% endblock %}

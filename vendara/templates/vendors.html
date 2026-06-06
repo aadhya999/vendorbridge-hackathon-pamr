@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Vendors - Vendara{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Vendara</h2>
+            <p>{{ session.user_name }} ({{ session.user_role }})</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul>
+                <li>
+                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+                </li>
+                <li class="active">
+                    <a href="{{ url_for('vendors') }}">Vendors</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('requisitions') }}">Requisitions</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('rfqs') }}">RFQs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('quotations') }}">Quotations</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('purchase_orders') }}">Purchase Orders</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('grns') }}">GRNs</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('invoices') }}">Invoices</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('scorecards') }}">Scorecards</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('analytics') }}">Analytics</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Vendor Management</h1>
+            <button onclick="showRegisterForm()" class="btn btn-primary">Register Vendor</button>
+        </div>
+        
+        <!-- Search & Filter -->
+        <div class="search-bar">
+            <form method="GET" action="{{ url_for('vendors') }}">
+                <input type="text" name="search" placeholder="Search vendors..." value="{{ search }}">
+                <select name="status">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option>
+                    <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+                <button type="submit" class="btn btn-secondary">Filter</button>
+            </form>
+        </div>
+        
+        <!-- Register Vendor Form Modal -->
+        {% if action == 'register' %}
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Register New Vendor</h2>
+                    <a href="{{ url_for('vendors') }}" class="close">&times;</a>
+                </div>
+                <form method="POST" action="{{ url_for('register_vendor') }}" class="form">
+                    <div class="form-group">
+                        <label for="company_name">Company Name</label>
+                        <input type="text" id="company_name" name="company_name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gst_number">GST Number</label>
+                        <input type="text" id="gst_number" name="gst_number" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <input type="text" id="category" name="category" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact_person">Contact Person</label>
+                        <input type="text" id="contact_person" name="contact_person" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="text" id="phone" name="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bank_name">Bank Name</label>
+                        <input type="text" id="bank_name" name="bank_name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bank_account">Bank Account</label>
+                        <input type="text" id="bank_account" name="bank_account">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ifsc_code">IFSC Code</label>
+                        <input type="text" id="ifsc_code" name="ifsc_code">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="documents">Documents (comma-separated URLs)</label>
+                        <input type="text" id="documents" name="documents">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Register Vendor</button>
+                    <a href="{{ url_for('vendors') }}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Vendors Table -->
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Vendor ID</th>
+                        <th>Company Name</th>
+                        <th>Category</th>
+                        <th>GST Number</th>
+                        <th>Contact Person</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if vendors %}
+                        {% for vendor in vendors %}
+                        <tr>
+                            <td>{{ vendor.vendor_id }}</td>
+                            <td>{{ vendor.company_name }}</td>
+                            <td>{{ vendor.category }}</td>
+                            <td>{{ vendor.gst_number }}</td>
+                            <td>{{ vendor.contact_person }}</td>
+                            <td>{{ vendor.email }}</td>
+                            <td>{{ vendor.phone }}</td>
+                            <td>
+                                <span class="status status-{{ vendor.status }}">{{ vendor.status }}</span>
+                            </td>
+                            <td>
+                                {% if vendor.status == 'pending' %}
+                                <a href="{{ url_for('approve_vendor', vendor_id=vendor.id) }}" class="btn btn-sm btn-success">Approve</a>
+                                <a href="{{ url_for('reject_vendor', vendor_id=vendor.id) }}" class="btn btn-sm btn-danger">Reject</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="9" class="no-data">No vendors found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+function showRegisterForm() {
+    window.location.href = "{{ url_for('register_vendor') }}";
+}
+</script>
+{% endblock %}
